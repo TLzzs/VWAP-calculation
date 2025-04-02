@@ -1,0 +1,3 @@
+curl -X POST http://localhost:8081/subjects/vwap-event-v1-value/versions \
+  -H "Content-Type: application/vnd.schemaregistry.v1+json" \
+  -d '{"schema": "{\"namespace\":\"com.vwap.event\",\"type\":\"record\",\"name\":\"VwapDataUpdateEvent\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"currencyPair\",\"type\":\"string\"},{\"name\":\"price\",\"type\":\"double\"},{\"name\":\"volume\",\"type\":\"double\"},{\"name\":\"timestamp\",\"type\":\"string\"}]}"}'

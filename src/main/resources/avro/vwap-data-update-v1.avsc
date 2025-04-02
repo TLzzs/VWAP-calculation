@@ -1,0 +1,12 @@
+{
+  "namespace": "com.vwap.event",
+  "type": "record",
+  "name": "VwapDataUpdateEvent",
+  "fields": [
+    { "name": "id", "type": "string" },
+    { "name": "currencyPair", "type": "string" },
+    { "name": "price", "type": "double" },
+    { "name": "volume", "type": "double" },
+    { "name": "timestamp", "type": "string" }
+  ]
+}
