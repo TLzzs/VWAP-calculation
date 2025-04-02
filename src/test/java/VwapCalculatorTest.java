@@ -1,4 +1,5 @@
 
+import exceptions.InvalidVwapDataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -74,5 +75,37 @@ public class VwapCalculatorTest {
 
         assertTrue(vwap > 0.0);
         executor.shutdown();
+    }
+
+    @Test
+    void testInvalidCurrencyPairThrowsException() {
+        InvalidVwapDataException ex = assertThrows(InvalidVwapDataException.class, () -> {
+            calculator.addPriceUpdate(null, LocalDateTime.now(), 1.10, 100000);
+        });
+        assertTrue(ex.getMessage().contains("currencyPair"));
+    }
+
+    @Test
+    void testInvalidTimestampThrowsException() {
+        InvalidVwapDataException ex = assertThrows(InvalidVwapDataException.class, () -> {
+            calculator.addPriceUpdate("AUD/USD", null, 1.10, 100000);
+        });
+        assertTrue(ex.getMessage().contains("timestamp"));
+    }
+
+    @Test
+    void testInvalidVolumeThrowsException() {
+        InvalidVwapDataException ex = assertThrows(InvalidVwapDataException.class, () -> {
+            calculator.addPriceUpdate("AUD/USD", LocalDateTime.now(), 1.10, -100);
+        });
+        assertTrue(ex.getMessage().contains("volume"));
+    }
+
+    @Test
+    void testNaNPriceThrowsException() {
+        InvalidVwapDataException ex = assertThrows(InvalidVwapDataException.class, () -> {
+            calculator.addPriceUpdate("AUD/USD", LocalDateTime.now(), Double.NaN, 100000);
+        });
+        assertTrue(ex.getMessage().contains("price"));
     }
 }
