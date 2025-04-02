@@ -37,7 +37,9 @@ public class VwapCalculator {
             cleanOldData(data, timestamp);
 
             double vwap = calculateVwap(data);
-            System.out.printf("Vwap for %s at %s = %.6f%n", currencyPair, timestamp, vwap);
+
+            // enable below print command for debug
+            //System.out.printf("Vwap for %s at %s = %.6f%n", currencyPair, timestamp, vwap);
         }
     }
 

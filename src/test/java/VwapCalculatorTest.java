@@ -57,7 +57,7 @@ public class VwapCalculatorTest {
 
         Runnable task = () -> {
             for (int i = 0; i < updatesPerThread; i++) {
-                calculator.addPriceUpdate("EUR/USD", LocalDateTime.now(), 1.10 + Math.random() * 0.01, 100000 + Math.random() * 10000);
+                calculator.addPriceUpdate("AUD/USD", LocalDateTime.now(), 0.6 + Math.random() * 0.1, 100000 + Math.random() * 10000);
             }
             latch.countDown();
         };
@@ -68,7 +68,7 @@ public class VwapCalculatorTest {
         }
         latch.await();
         long duration = System.nanoTime() - start;
-        double vwap = calculator.getCurrentVwap("EUR/USD");
+        double vwap = calculator.getCurrentVwap("AUD/USD");
 
         System.out.printf("High concurrency test completed in %.2f ms. Final VWAP: %.6f%n", duration / 1000000.0, vwap);
 
