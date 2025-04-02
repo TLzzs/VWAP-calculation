@@ -5,12 +5,13 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class VwapCalculator {
     private static final Duration WINDOW_DURATION = Duration.ofHours(1);
 
-    private final Map<String, VwapData> dataMap = new HashMap<>();
-    private final Map<String, Object> locks = new HashMap<>();
+    private final Map<String, VwapData> dataMap = new ConcurrentHashMap<>();
+    private final Map<String, Object> locks = new ConcurrentHashMap<>();
     
     public void addPriceUpdate(String currencyPair, LocalDateTime timestamp, double price, double volume) {
         VwapData data;
