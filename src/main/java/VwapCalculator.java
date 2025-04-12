@@ -4,7 +4,7 @@ import exceptions.InvalidVwapDataException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,41 +13,42 @@ public class VwapCalculator {
 
     private final Map<String, VwapData> dataMap = new ConcurrentHashMap<>();
     private final Map<String, Object> locks = new ConcurrentHashMap<>();
-    
-    public void addPriceUpdate(String currencyPair, LocalDateTime timestamp, double price, double volume) {
-        validateInput(currencyPair, timestamp, price, volume);
-        try {
-            VwapData data;
-            Object lock;
 
-            /*
-             * synchronized block (this): Ensure Multiple Thread Won't Init VwapData and Lock Object For Same Currency Pair
-             * currency-pair -> {unique VwapData, unique lock}
-             * */
+    public void addAllUpdates(String currencyPair, List<DataPoint> updates) {
+        if (updates.isEmpty()) return;
+
+        try {
+            Object lock;
+            VwapData data;
             synchronized (this) {
                 data = dataMap.computeIfAbsent(currencyPair, k -> new VwapData());
                 lock = locks.computeIfAbsent(currencyPair, k -> new Object());
             }
 
-            /*
-             * synchronized block (lock): Ensure For Each CurrencyPair, only one thread is modifying VwapData
-             * */
             synchronized (lock) {
-                data.getDeque().addLast(new DataPoint(timestamp, price, volume));
-                data.setPriceVolumeSum(data.getPriceVolumeSum() + price * volume);
-                data.setVolumeSum(data.getVolumeSum() + volume);
+                LocalDateTime latest = null;
+                for (DataPoint dp : updates) {
+                    validateInputDataPoint(currencyPair, dp);
+                    data.getDeque().addLast(dp);
+                    data.setPriceVolumeSum(data.getPriceVolumeSum() + dp.getPrice() * dp.getVolume());
+                    data.setVolumeSum(data.getVolumeSum() + dp.getVolume());
+                    if (latest == null || dp.getTimestamp().isAfter(latest)) {
+                        latest = dp.getTimestamp();
+                    }
+                }
+                cleanOldData(data, latest);
 
-                cleanOldData(data, timestamp);
-
-                double vwap = calculateVwap(data);
-
-                // enable below print command for debug
-                System.out.printf("Vwap for %s at %s = %.6f%n", currencyPair, timestamp, vwap);
+                double vwap = getCurrentVwap(currencyPair);
+                System.out.printf("VWAP(%s) After Current Batch at %s : %.6f%n",currencyPair, LocalDateTime.now(), vwap);
             }
         } catch (Exception e) {
             throw new InvalidVwapDataException("VWAP update failed: " + e.getMessage());
         }
 
+    }
+
+    private void validateInputDataPoint(String currencyPair, DataPoint dp) {
+        validateInput(currencyPair, dp.getTimestamp(), dp.getPrice(), dp.getVolume());
     }
 
     private void cleanOldData(VwapData data, LocalDateTime now) {

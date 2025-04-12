@@ -6,34 +6,44 @@ import java.util.concurrent.Executors;
 
 public class Main {
 
-    public static void main(String[] args) {
-        VwapCalculator calculator = new VwapCalculator();
-        ExecutorService executor = Executors.newFixedThreadPool(5);
+    public static void main(String[] args) throws InterruptedException {
+        BatchVwapUpdater updater = new BatchVwapUpdater();
 
-        for (int i = 0; i < 10000; i++) {
-            executor.execute(() -> {
-                try {
-                    calculator.addPriceUpdate("AUD/USD", LocalDateTime.now(), 0.69 + Math.random() * 0.01, 100000 + Math.random() * 10000);
-                } catch (InvalidVwapDataException e) {
-                    System.err.println("AUD/USD update skipped: " + e.getMessage());
-                }
-            });
-            executor.execute(() -> {
-                try {
-                    calculator.addPriceUpdate("CNY/AUD", LocalDateTime.now(), 0.22 + Math.random() * 1.0, 200000 + Math.random() * 50000);
-                } catch (InvalidVwapDataException e) {
-                    System.err.println("CNY/AUD update skipped: " + e.getMessage());
-                }
-            });
-            executor.execute(() -> {
-                try {
-                    calculator.addPriceUpdate("NZD/GBP", LocalDateTime.now(), 0.47 + Math.random() * 0.01, 150000 + Math.random() * 20000);
-                } catch (InvalidVwapDataException e) {
-                    System.err.println("NZD/GBP update skipped: " + e.getMessage());
-                }
-            });
-        }
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        // Hardcoded: Each thread sends updates for a specific pair
+        executor.submit(() -> {
+            for (int i = 0; i < 10000; i++) {
+                updater.addPriceUpdate("AUD/USD", 0.70 + Math.random() * 0.01, 100000 + Math.random() * 1000);
+            }
+//            System.out.println("AUD/USD done");
+        });
+
+//        executor.submit(() -> {
+//            for (int i = 0; i < 10000; i++) {
+//                updater.addPriceUpdate("EUR/JPY", 141.0 + Math.random() * 0.1, 120000 + Math.random() * 1500);
+//            }
+//            System.out.println("EUR/JPY done");
+//        });
+//
+//        executor.submit(() -> {
+//            for (int i = 0; i < 10000; i++) {
+//                updater.addPriceUpdate("GBP/USD", 1.25 + Math.random() * 0.02, 95000 + Math.random() * 800);
+//            }
+//            System.out.println("GBP/USD done");
+//        });
+//
+//        executor.submit(() -> {
+//            for (int i = 0; i < 10000; i++) {
+//                updater.addPriceUpdate("USD/JPY", 110.0 + Math.random() * 0.2, 105000 + Math.random() * 1200);
+//            }
+//            System.out.println("USD/JPY done");
+//        });
 
         executor.shutdown();
+
+        // Wait for final flush
+        Thread.sleep(5000);
+        updater.shutdown();
     }
 }

@@ -6,11 +6,18 @@ public class DataPoint {
     private LocalDateTime timestamp;
     private double price;
     private double volume;
+    private final String currencyPair;
 
-    public DataPoint(LocalDateTime timestamp, double price, double volume) {
+
+    public DataPoint(LocalDateTime timestamp, double price, double volume, String currenyPair) {
         this.timestamp = timestamp;
         this.price = price;
         this.volume = volume;
+        this.currencyPair = currenyPair;
+    }
+
+    public String getCurrencyPair() {
+        return currencyPair;
     }
 
     public LocalDateTime getTimestamp() {
