@@ -6,7 +6,7 @@ import java.util.concurrent.*;
 
 public class BatchVwapUpdater {
 
-    private final List<DataPoint> buffer = Collections.synchronizedList(new ArrayList<>());
+    private final List<DataPoint> buffer = new ArrayList<>();
     private final ScheduledThreadPoolExecutor workerPool = new ScheduledThreadPoolExecutor(4);
     private final VwapCalculator calculator = new VwapCalculator();
     private final Integer FLUSH_THRESHOLD = 1000;
