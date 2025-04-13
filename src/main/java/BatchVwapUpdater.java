@@ -69,8 +69,6 @@ public class BatchVwapUpdater {
                 calculator.addAllUpdates(entry.getKey(), entry.getValue());
             }
 
-            double vwap = calculator.getCurrentVwap("AUD/USD");
-            System.out.printf("VWAP After flush at %s : %.6f%n", LocalDateTime.now(), vwap);
         });
     }
 
